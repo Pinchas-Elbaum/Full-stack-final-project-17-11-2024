@@ -1,4 +1,8 @@
+import axios from "axios"
+
 export const deleteToken = () => {
-    document.cookie = "auth_token=; expires=; path=/;";
+    axios.post('http://localhost:3300/auth/logout', {}, { withCredentials: true });
+
+    // document.cookie = "auth_token=; expires=; path=/;";
 
 }

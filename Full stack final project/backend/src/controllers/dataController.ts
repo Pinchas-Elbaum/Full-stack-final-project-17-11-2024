@@ -5,9 +5,17 @@ import { Request, Response } from "express";
 
 export const getAllMissiles = async (req: Request, res: Response): Promise<void> => {
     try {
+
         const missiles = await Missille.find();
+        if (!missiles) {
+            res.status(404).json({ error: "Missiles not found" });
+            return
+        }
         res.status(200).json(missiles);
         return
+        
+        
+      
 
     } catch (error) {
 
@@ -19,12 +27,21 @@ export const getAllMissiles = async (req: Request, res: Response): Promise<void>
 export const getOrganizationMissiles = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
+        if (!id) {
+            res.status(400).json({ error: "Missing params" });
+            return
+        }
         const organization = await Organization.findById({ _id: id });
+
         if (!organization) {
             res.status(404).json({ error: "Organization not found" });
             return
         }
         const missiles = organization.resources;
+        if (!missiles) {
+            res.status(404).json({ error: "Missiles not found" });
+            return
+        }
 
         res.status(200).json(missiles);
         return
@@ -37,21 +54,21 @@ export const getOrganizationMissiles = async (req: Request, res: Response): Prom
 export const buyMissile = async (req: Request, res: Response): Promise<void> => {
 
     try {
-        const { id } = req.params;// מקבל איידי של יוזר
-        const { name, amount } = req.body; // מקבל שם וכמות של נשק
+        const { id } = req.params;
+        const { name, amount } = req.body; 
 
-        if (!id || !name || !amount) { // אם אין אחד מהפרמטרים  - החזר שגיאה
+        if (!id || !name || !amount) { 
             res.status(400).json({ error: "Missing required fields" });
             return
         }
-        const user = await User.findById({ _id: id }); // בדוק האם קיים משתמש בשם זה  
+        const user = await User.findById({ _id: id });  
         
         if (!user) {
             res.status(404).json({ error: "User not found" }); // אם לא קיים החזר שגיאה
             return
         }
 
-        const missile = await Missille.findOne({ name }); // חפש נשק לפי השם שנשלח בגוף הבקשה
+        const missile = await Missille.findOne({ name });
 
         if (!missile) {
             res.status(404).json({ error: "Missile not found" });// אם לא קיים החזר שגיאה
@@ -63,19 +80,24 @@ export const buyMissile = async (req: Request, res: Response): Promise<void> => 
             return
         }
 
-        const organization = await Organization.findOne({ name: user.organization }); // מצא את הארגון של המשתמש לפי ההשתייכות שלו
+        const organization = await Organization.findOne({_id: user.organizationId }); 
 
         if (!organization) {
-            res.status(404).json({ error: "Organization not found" }); // אם לא קיים כזה ארגון החזר שגיאה
+            res.status(404).json({ error: "Organization not found" }); 
             return
         }
 
-        const resources = organization.resources; // חלץ את המערך של הנשקים של הארגון
+        const resources = organization.resources;
 
-        const isMissileExistsAtOraganization = resources.find(resource => resource.name === name) // בדוק האם הנשק כבר קיים בארגון
+        if (!resources) {
+            res.status(404).json({ error: "Resources not found" });
+            return
+        }
+
+        const isMissileExistsAtOraganization = resources.find(resource => resource.name === name) 
 
         if (isMissileExistsAtOraganization) {
-            resources.map(resource => resource.name === name ? resource.amount += Number(amount) : resource);// אם קיים הוסף לכמות הנשקים של הארגון
+            resources.map(resource => resource.name === name ? resource.amount += Number(amount) : resource);
         }
         else {
             resources.push({ name, amount });// אחרת הוסף את הנשק למערך
@@ -98,6 +120,10 @@ export const buyMissile = async (req: Request, res: Response): Promise<void> => 
 export const getUser = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
+        if (!id) {
+            res.status(400).json({ error: "Missing params" });
+            return
+        }
         const user = await User.findById({ _id: id });
         if (!user) {
             res.status(404).json({ error: "User not found" });

@@ -25,6 +25,10 @@ app.use(cookieParser());
 app.use('/auth', Routes);
 app.use('/api', dataRoutes);
 
+app.use((req, res, next) => {
+    res.status(404).send("Sorry can't find that!")
+  })
+
 
 connectToDatabase();
 initialDataToDB();

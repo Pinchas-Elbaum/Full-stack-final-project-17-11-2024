@@ -3,14 +3,16 @@ import { UserContext } from '../providers/UserProvider'
 import { ResorcesContext } from '../providers/ResorcesProvidser'
 import { useNavigate } from 'react-router-dom'
 import { deleteToken } from '../service/DeleteToken'
+import { IUser } from '../types/Types'
 
 const CurrentWeapon = () => {
-    const{user} = useContext(UserContext)
+    const{user, setuser} = useContext(UserContext)
     const{resources} = useContext(ResorcesContext) 
 
     const navigate = useNavigate();
     const logOut = () => {
       deleteToken();
+      setuser({} as IUser);
       navigate('/');
   }
 

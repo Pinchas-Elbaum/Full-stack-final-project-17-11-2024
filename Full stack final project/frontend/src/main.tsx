@@ -16,7 +16,6 @@ createRoot(document.getElementById('root')!).render(
       <SnakeBarProvider>
         <UserProvider>
           <ResourcesProvider>
-
             <App />
           </ResourcesProvider>
         </UserProvider>

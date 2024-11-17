@@ -11,7 +11,7 @@ const Login = () => {
 
 
 
-    const { setuser } = useContext(UserContext)!
+    const { user, setuser } = useContext(UserContext)!
     const { setresources } = useContext(ResorcesContext)!
 
     const nameRef = useRef<HTMLInputElement>(null);
@@ -48,7 +48,7 @@ const Login = () => {
                                 })
 
                             } catch (error) {
-                                
+                                console.log(error);
 
                             }
                         })
@@ -70,19 +70,19 @@ const Login = () => {
     }
 
     return (
-        <div>
 
+        <div>
+            {user.name && <h1>hello {user.name}</h1>}
             <form onSubmit={submitHendler}>
                 <input type="text" placeholder='username' ref={nameRef} required />
                 <input type="password" placeholder='password' ref={passwordRef} required />
                 <button type='submit'>LOGIN</button>
             </form>
             {isOpen && (
-                <div className="snackbar">
+                <div className="snackbar" style={{ backgroundColor: 'green' }}>
                     {message}
                 </div>
             )}
-
         </div>
     )
 }
