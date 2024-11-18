@@ -4,6 +4,11 @@ import Organization from "../models/organizationModel";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
+interface DTO {
+    message: string;
+    data?: any;
+    success: boolean;
+  }
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -11,14 +16,14 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const { name, password, organization, area } = req.body;
 
         if (!name || !organization || !password) {
-            res.status(400).json({ error: "Missing required fields" });
+            res.status(400).json({message: "Missing required fields", success: false});
             return;
         }
 
-        const existingUser = await User.findOne({ name });
+        const existingUser = await User.findOne({ name }); 
 
         if (existingUser) {
-            res.status(400).json({ error: "User name already exists" });
+            res.status(400).json({ message: "User name already exists" , data: { name }, success: false});
             return;
         }
 
@@ -27,30 +32,34 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const userOrganization = await Organization.findOne({ name: organization });
 
         if (!userOrganization) {
-            res.status(400).json({ error: "Organization not found" });
+            res.status(400).json({ message: "Organization not found" , data: { organization }, success: false});
             return;
         }
         const organizationId = userOrganization._id;
 
         const budget = userOrganization.budget;
-
-        const user = new User({
+        const user = await User.create({
             name,
             password: hashedPassword,
             organization,
             area,
             budget,
             organizationId
-        });
+          });
 
-        await user.save();
-
-        const { password: _, ...userWithoutPassword } = user.toObject();
-        res.status(201).json(userWithoutPassword);
+        const response: DTO = {
+            message: "User created successfully",
+            success: true,
+            data: {
+                name,
+                },
+          };
+        
+        res.status(201).json(response);
         return
 
-    } catch (error) {
-        res.status(500).json({ error: "Failed to save user" });
+    } catch (error) { 
+        res.status(500).json({ message: "Failed to save user", success: false });
         return
     }
 };
@@ -61,20 +70,20 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         const { name, password } = req.body;
 
         if (!name || !password) {
-            res.status(400).json({ error: "Missing required fields" });
+            res.status(400).json({ message: "Missing required fields" , success: false});
             return;
         }
 
         const user = await User.findOne({ name });
 
         if (!user) {
-            res.status(401).json({ error: "Invalid email or password" });
+            res.status(401).json({ message: "Invalid name" , success: false});
             return
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            res.status(401).json({ error: "Invalid email or password" });
+            res.status(401).json({ message: "Invalid name or password" , success: false, data: {name, password  } });
             return
         }
 
@@ -86,13 +95,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             httpOnly: true
         });
 
-        res.json({ id: user._id, name: user.name });
+        res.status(200).json( { message: "Login successful", success: true, data:{ id: user._id, name: user.name }});
         return
 
     } catch (error) {
 
         console.error("Error logging in:", error);
-        res.status(500).json({ error: "Failed to login" });
+        res.status(500).json({ message: "Failed to login", success: false });
     }
 };
 
@@ -146,10 +155,10 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
 export const logout = (req: Request, res: Response): void => {
     try {
         res.clearCookie("auth_token");
-        res.json({ message: "Logout successful" });
+        res.status(200).json({ message: "Logout successful", success: true });
         return
     } catch (error) {
-        res.status(500).json({ error: "Failed to logout" });
+        res.status(500).json({ message: "Failed to logout" , success: false});
         return
     }
   

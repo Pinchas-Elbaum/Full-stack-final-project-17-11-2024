@@ -10,11 +10,11 @@ export const initialDataToDB = async (): Promise<void> => {
         ]);
 
         if (missileCount === 0 && organizationCount === 0) {
-            const missileData: string = fs.readFileSync("src/data/missiles.json", 'utf-8');
+            const missileData: string = fs.readFileSync("src/data/missiles.json", 'utf-8'); 
             const missiles = JSON.parse(missileData);
 
             const organizationData: string = fs.readFileSync("src/data/organizations.json", 'utf-8');
-            const organizations = JSON.parse(organizationData);
+            const organizations = JSON.parse(organizationData); 
 
             await Promise.all([
                 Missile.insertMany(missiles),

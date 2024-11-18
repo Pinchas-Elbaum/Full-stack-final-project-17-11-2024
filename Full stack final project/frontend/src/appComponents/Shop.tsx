@@ -1,6 +1,6 @@
 import axios from 'axios'
 import  {  useContext, useEffect, useState } from 'react'
-import { IMissiles } from '../types/Types'
+import { IMissiles, IUser } from '../types/Types'
 import { useNavigate } from 'react-router-dom';
 import { deleteToken } from '../service/DeleteToken';
 import { UserContext } from '../providers/UserProvider';
@@ -23,6 +23,7 @@ const Shop = () => {
 
     const logOut = () => {
         deleteToken();
+        setuser({} as IUser);
         navigate('/');
     }
 
