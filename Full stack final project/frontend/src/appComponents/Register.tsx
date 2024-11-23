@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useRef, useState } from "react";
 import axios from "axios";
 import { SnackbarContext } from "../providers/SnakeBarProvider";
 import { useNavigate } from "react-router-dom";
@@ -10,10 +10,10 @@ const Register = () => {
 
     const nameRef = useRef<HTMLInputElement>(null);
     const passwordRef = useRef<HTMLInputElement>(null);
-    const organizationRef = useRef<HTMLSelectElement>(null);
+    const [organization, setorganization] = useState('');
     const arearef = useRef<HTMLSelectElement>(null);
 
-    const organizations = ["IDF - North", "Hezbollah", "Hamas", "IRGC", "Houthis"];
+    const organizations = ["IDF", "Hezbollah", "Hamas", "IRGC", "Houthis"];
     const areas = ["North", "South", "Center", "West Bank"];
 
     const navigat = useNavigate();
@@ -24,17 +24,17 @@ const Register = () => {
         const user: IUser = {
             name: nameRef.current!.value,
             password: passwordRef.current!.value,
-            organization: organizationRef.current!.value,
+            organization: `${organization} - ${arearef.current!.value}`,
             area: arearef.current!.value
         };
 
         nameRef.current!.value = "";
         passwordRef.current!.value = "";
-        organizationRef.current!.value = "";
+        setorganization("");
         arearef.current!.value = "";
 
         try {
-            axios.post("http://localhost:3300/auth/register", user);
+            axios.post("http://localhost:3300/auth/register", user).then(res => res.data.success)
 
             showSnackbar('User added successfully!!');
             setTimeout(() => {
@@ -68,23 +68,26 @@ const Register = () => {
                 <input type="password" id="password" ref={passwordRef} required />
 
                 <label htmlFor="organization">Organization</label>
-                <select id="organization" ref={organizationRef}>
+                <select id="organization" value={organization} onChange={(e) => { setorganization(e.target.value) }}>
                     {organizations.map((organization) => (
                         <option key={organization} value={organization}>
                             {organization}
                         </option>
                     ))}
                 </select>
+                {organization == "IDF" && (<div>
+                    <label htmlFor="area">area</label>
+                    <select id="area" ref={arearef}>
+                        {areas.map((area) => (
+                            <option key={area} value={area}>
+                                {area}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-                <label htmlFor="area">Area</label>
-                <select id="area" ref={arearef}>
-                    <option value=""></option>
-                    {areas.map((area) => (
-                        <option key={area} value={area}>
-                            {area}
-                        </option>
-                    ))}
-                </select>
+                )}
+
 
                 <button type="submit">Register</button>
 

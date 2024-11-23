@@ -5,17 +5,13 @@ import { Request, Response } from "express";
 
 export const getAllMissiles = async (req: Request, res: Response): Promise<void> => {
     try {
-
         const missiles = await Missille.find();
         if (!missiles) {
             res.status(404).json({ error: "Missiles not found" });
             return
         }
-        res.status(200).json(missiles);
+        res.status(200).json({message: "Missiles fetched successfully", data:{missiles}, success: true});
         return
-        
-        
-      
 
     } catch (error) {
 

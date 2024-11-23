@@ -111,43 +111,43 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
         const { id } = req.params;
 
         if (!id) {
-            res.status(400).json({ error: "Missing params" });
+            res.status(400).json({ message: "Missing params", success: false });
             return
         }
 
         const user = User.findById(id);
 
         if (!user) {
-            res.status(404).json({ error: "User not found" });
+            res.status(404).json({ message: "User not found", success: false });
             return
         }
         
         const token = req.cookies.auth_token;
         if (!token) {
-            res.status(401).json({ error: "No token provided" });
+            res.status(401).json({ message: "No token provided", success: false });
             return
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || "") as { id: string, organization: string };
 
         if (!decoded) {
-            res.status(401).json({ error: "Invalid token" });
+            res.status(401).json({ message: "Invalid token", success: false });
             return
         }
         if (!decoded.id || !decoded.organization) {
-            res.status(401).json({ error: "Invalid token" });
+            res.status(401).json({ message: "Invalid token", success: false });
             return
         }
 
         if (decoded.id !== id) {
-            res.status(401).json({ error: "Invalid token" });
+            res.status(401).json({ message: "Invalid token", success: false });
             return
         }
 
         next();
 
     } catch (error) {
-        res.status(401).json({ error: "Invalid token" });
+        res.status(401).json({ message: "Invalid token", success: false });
         return
     }
 };
